@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Guide: 2fa Command Line Authentication : A way to authenticate on GitHub at the command line with 2fa enabled">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Guide: 2fa Command Line Authentication</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/andresbono/2fa-cli-auth">View on GitHub</a>
+
+          <h1 id="project_title">Guide: 2fa Command Line Authentication</h1>
+          <h2 id="project_tagline">A way to authenticate on GitHub at the command line with 2fa enabled</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/andresbono/2fa-cli-auth/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/andresbono/2fa-cli-auth/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="2fa-command-line-authentication" class="anchor" href="#2fa-command-line-authentication" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2fa Command Line Authentication</h1>
+
+<p>If you have 2fa (<a href="https://help.github.com/articles/securing-your-account-with-two-factor-authentication-2fa/">2 factor authentication</a>) enabled on GitHub you can't use your password to authenticate at the command line on Linux.</p>
+
+<p>After a while I found a solution that suits for me:</p>
+
+<h2>
+<a id="steps" class="anchor" href="#steps" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Steps</h2>
+
+<p><strong>1.</strong> Create an <strong>access token</strong> for command-line use. See: <a href="https://help.github.com/articles/creating-an-access-token-for-command-line-use/">https://help.github.com/articles/creating-an-access-token-for-command-line-use/</a></p>
+
+<p><strong>2.</strong> Create the <code>~/.netrc</code> file. It should look like:</p>
+
+<pre><code>machine github.com
+login username
+password YOUR_TOKEN
+protocol https
+
+machine gist.github.com
+login username
+password YOUR_TOKEN
+protocol https
+</code></pre>
+
+<p>with <code>YOUR_TOKEN</code> created in the previous step.</p>
+
+<p>More about <code>.netrc</code> file: <code>man 5 netrc</code></p>
+
+<p><strong>3.</strong> Encrypt <code>.netrc</code> file.</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># Generate key</span>
+gpg --gen-key
+<span class="pl-c"># Encrypt file with this key</span>
+gpg -r <span class="pl-k">&lt;</span>user-id-key<span class="pl-k">&gt;</span> -e .netrc
+<span class="pl-c"># Give appropiate permissions</span>
+chmod 400 <span class="pl-k">~</span>/.netrc.gpg
+<span class="pl-c"># Remove original file</span>
+rm <span class="pl-k">~</span>/.netrc</pre></div>
+
+<p>This generates a <code>.netrc.gpg</code> file.</p>
+
+<p><strong>4.</strong> Make available the git credential helper:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># Put the script somewhere in PATH</span>
+sudo cp /usr/share/doc/git/contrib/credential/netrc/git-credential-netrc /usr/local/bin/
+<span class="pl-c"># Mark it as executable</span>
+sudo chmod +x /usr/local/bin/git-credential-netrc
+<span class="pl-c"># Set Git configuration value</span>
+git config --global credential.helper netrc</pre></div>
+
+<p><strong>NOTE</strong>: You can set two git credential helpers. This way you can combine with <code>git-credential-cache</code> and temporarily store authentication in memory. You have to declare the helpers in an specific order and your <code>~/.gitconfig</code> file should look like this:</p>
+
+<pre><code>[credential]
+  helper = cache --timeout 7200
+  helper = netrc
+</code></pre>
+
+<h3>
+<a id="more-sources" class="anchor" href="#more-sources" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>More sources</h3>
+
+<ul>
+<li><a href="https://git-scm.com/book/es/v2/Git-Tools-Credential-Storage">https://git-scm.com/book/es/v2/Git-Tools-Credential-Storage</a></li>
+<li><a href="https://git-scm.com/docs/git-credential-cache">https://git-scm.com/docs/git-credential-cache</a></li>
+</ul>
+
+<h2>
+<a id="future-work-custom-credential-tool" class="anchor" href="#future-work-custom-credential-tool" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Future work: Custom Credential Tool</h2>
+
+<p>It could be interesting to develop a credential helper.</p>
+
+<h2>
+<a id="contribution" class="anchor" href="#contribution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contribution</h2>
+
+<p>PRs and reporting issues are welcome.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Guide: 2fa Command Line Authentication maintained by <a href="https://github.com/andresbono">andresbono</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
